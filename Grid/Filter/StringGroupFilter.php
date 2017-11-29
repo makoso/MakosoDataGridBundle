@@ -6,7 +6,7 @@
  * Time: 13:10
  */
 
-namespace Makoso\DataGridBundle\Grid\Filter;
+namespace Makoso\DatagridBundle\Grid\Filter;
 
 class StringGroupFilter extends FilterGroup
 {

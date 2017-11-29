@@ -3,10 +3,8 @@ services:
         autowire: true
         autoconfigure: true
         public: false
-    Makoso\DataGridbundle\:
+    Makoso\DatagridBundle\:
         resource: './../../*'
-        exclude: './../../Grid}'
-    Makoso\DataGridbundle\Grid\:
-        resource: './../../Grid/*'
+        exclude: './../../Grid/Column'
+    Makoso\DatagridBundle\Grid\Grid:
         public: true
-        exclude: './../../{Column}'

@@ -6,7 +6,7 @@
  * Time: 20:13
  */
 
-namespace Makoso\DataGridBundle\Grid;
+namespace Makoso\DatagridBundle\Grid;
 
 
 use App\Grid\Column\GridActionColumn;

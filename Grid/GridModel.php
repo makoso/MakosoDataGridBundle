@@ -6,7 +6,7 @@
  * Time: 12:31
  */
 
-namespace Makoso\DataGridBundle\Grid;
+namespace Makoso\DatagridBundle\Grid;
 
 class GridModel
 {

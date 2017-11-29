@@ -6,9 +6,9 @@
  * Time: 14:52
  */
 
-namespace Makoso\DataGridBundle\Grid\Column;
+namespace Makoso\DatagridBundle\Grid\Column;
 
-use Makoso\DataGridBundle\Grid\Filter\FilterGroupInterface;
+use Makoso\DatagridBundle\Grid\Filter\FilterGroupInterface;
 
 class GridColumn
 {

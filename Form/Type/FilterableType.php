@@ -6,10 +6,10 @@
  * Time: 23:27
  */
 
-namespace Makoso\DataGridBundle\Form\Type;
+namespace Makoso\DatagridBundle\Form\Type;
 
-use Makoso\DataGridBundle\Grid\Filter\FilterGroupInterface;
-use Makoso\DataGridBundle\Grid\Filter\FilterInterface;
+use Makoso\DatagridBundle\Grid\Filter\FilterGroupInterface;
+use Makoso\DatagridBundle\Grid\Filter\FilterInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;

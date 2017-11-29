@@ -6,7 +6,7 @@
  * Time: 00:15
  */
 
-namespace Makoso\DataGridBundle\Grid\Filter;
+namespace Makoso\DatagridBundle\Grid\Filter;
 
 
 use App\Grid\Column\GridColumn;

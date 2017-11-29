@@ -6,14 +6,14 @@
  * Time: 12:34
  */
 
-namespace Makoso\DataGridBundle\Grid;
+namespace Makoso\DatagridBundle\Grid;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
-use Makoso\DataGridBundle\Form\Type\FilterableType;
-use Makoso\DataGridBundle\Grid\Column\GridActionColumn;
-use Makoso\DataGridBundle\Grid\Filter\FilterInterface;
+use Makoso\DatagridBundle\Form\Type\FilterableType;
+use Makoso\DatagridBundle\Grid\Column\GridActionColumn;
+use Makoso\DatagridBundle\Grid\Filter\FilterInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;

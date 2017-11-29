@@ -6,10 +6,10 @@
  * Time: 21:19
  */
 
-namespace Makoso\DataGridBundle;
+namespace Makoso\DatagridBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class MakosoDataGridBundle extends Bundle
+class MakosoDatagridBundle extends Bundle
 {
 }
