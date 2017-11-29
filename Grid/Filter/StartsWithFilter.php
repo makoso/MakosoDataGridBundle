@@ -8,8 +8,8 @@
 
 namespace Makoso\DatagridBundle\Grid\Filter;
 
-use App\Grid\Column\GridColumn;
-use App\Grid\Grid;
+use Makoso\DatagridBundle\Grid\Column\GridColumn;
+use Makoso\DatagridBundle\Grid\Grid;
 use Doctrine\ORM\QueryBuilder;
 
 class StartsWithFilter implements FilterInterface
