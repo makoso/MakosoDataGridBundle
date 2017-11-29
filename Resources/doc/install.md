@@ -32,4 +32,17 @@ class AppKernel extends Kernel
 
 ```
 
+```bash
+./bin/console assets:install
+```
+
 Gotowe!
+
+
+### Symfony >= 3.4
+
+```bash
+composer req makoso/data-grid-bundle
+```
+
+Gotowe Symfony Flex wykona dalszą pracę, włączy bundle i zainstaluje assety
