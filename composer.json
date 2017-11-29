@@ -1,5 +1,5 @@
 {
-  "name": "Makoso/DataGridBundle",
+  "name": "makoso/data-grid-bundle",
   "type": "symfony-bundle",
   "description": "Symfony 3/4 datagrid bundle",
   "keywords": ["Symfony DataGrid Bundle"],
