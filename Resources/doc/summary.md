@@ -1,0 +1,3 @@
+# Podsumowanie
+
+  * [Instalacja](install.md)
