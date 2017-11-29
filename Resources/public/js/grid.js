@@ -55,7 +55,6 @@ var Grid = {
                             $form.removeClass('box');
                         }
                         $(gridFormSelector + ' select.grid-filter-select').change();
-                        initFormsUI();
                     }
                 });
                 return false;
