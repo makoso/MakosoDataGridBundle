@@ -1,0 +1,28 @@
+{
+  "name": "Makoso/DataGridBundle",
+  "type": "symfony-bundle",
+  "description": "Symfony 3/4 datagrid bundle",
+  "keywords": ["Symfony DataGrid Bundle"],
+  "homepage": "https://github.com/makoso/",
+  "license": "MIT",
+  "require": {
+    "php": "^7.0.8",
+    "symfony/form": "^3.3",
+    "symfony/framework-bundle": "^3.3",
+    "symfony/orm-pack": "^1.0",
+    "symfony/translation": "^3.3",
+    "symfony/twig-bundle": "^3.3",
+    "symfony/yaml": "^3.3"
+  },
+  "authors": [
+    {
+      "name": "Krzysztof Makowski",
+      "email": "krzysztof.makowski@netinteractive.pl"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Makoso\\DataGridBundle\\": ""
+    }
+  }
+}

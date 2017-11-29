@@ -1,0 +1,12 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+    Makoso\DataGridbundle\:
+        resource: './../../*'
+        exclude: './../../Grid}'
+    Makoso\DataGridbundle\Grid\:
+        resource: './../../Grid/*'
+        public: true
+        exclude: './../../{Column}'

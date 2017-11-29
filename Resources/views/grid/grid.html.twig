@@ -1,0 +1,147 @@
+{% block gridActionsBodyCeil %}
+    <td>
+        <div class="btn-group">
+            {% for actionColumn in grid.config.actionColumns %}
+                <a href="{{ grid.generateActionLink(actionColumn, record) }}" class="{{ actionColumn.cssClass }} grid-action-{{ actionColumn.name }}">{{ actionColumn.title|trans|raw }}</a>
+            {% endfor %}
+        </div>
+    </td>
+{% endblock gridActionsBodyCeil %}
+
+{% block gridActionsHeaderCeil %}
+    <td>Akcje</td>
+{% endblock gridActionsHeaderCeil %}
+
+{% block gridActionsFooterCeil %}
+    {{ block('gridActionsHeaderCeil') }}
+{% endblock gridActionsFooterCeil %}
+
+{% block gridColumTitle %}
+    <th class="{% if column.sortable %}sortable sorting{% if column.sortableValue != "" %}_{{ column.sortableValue|lower }}{% endif %}{% endif %}" data-grid-column="{{ column.name }}">
+        {{ grid.config.titleFormatting(column.title)|trans }}
+    </th>
+{% endblock gridColumTitle %}
+
+{% block gridColumnCeil %}
+    <td class="grid-column-{{ column.name }}">{{ record[column.name] }}</td>
+{% endblock gridColumnCeil %}
+
+{% block gridRow %}
+    <tr>
+        {% if grid.config.actionColumnOnLeft and grid.config.actionColumns|length > 0 %}
+            {{ block('gridActionsBodyCeil') }}
+        {% endif %}
+        {% for column in grid.config.columns %}
+            {{ block('gridColumnCeil') }}
+        {% endfor %}
+        {% if not grid.config.actionColumnOnLeft and grid.config.actionColumns|length > 0 %}
+            {{ block('gridActionsBodyCeil') }}
+        {% endif %}
+    </tr>
+{% endblock gridRow %}
+
+{% block gridHeaderRow %}
+    <tr>
+        {% if grid.config.actionColumnOnLeft and grid.config.actionColumns|length > 0 %}
+            {{ block('gridActionsFooterCeil') }}>
+        {% endif %}
+        {% for column in grid.config.columns %}
+            {{ block('gridColumTitle') }}
+        {% endfor %}
+        {% if not grid.config.actionColumnOnLeft and grid.config.actionColumns|length > 0 %}
+            {{ block('gridActionsFooterCeil') }}
+        {% endif %}
+    </tr>
+{% endblock gridHeaderRow %}
+
+{% block gridHeaderFiltering %}
+    <tr>
+        {% if grid.config.actionColumnOnLeft and grid.config.actionColumns|length > 0 %}
+            <th></th>
+        {% endif %}
+        {% for column in grid.config.columns %}
+            {% if column.filterable %}
+                <th style="vertical-align: top;" class="{% if column.filterable %}filterable{% endif %}" data-grid-column="{{ column.name }}">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-filter"></i></span>
+                        {{ form_row(grid.form['filter'][column.name].filterType, {attr: {class: 'grid-filter-select'}}) }}
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-arrow-right"></i></span>
+                        {{ form_row(grid.form['filter'][column.name].value, {attr: {class: 'grid-filter-input'}}) }}
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-arrow-left"></i></span>
+                        {{ form_row(grid.form['filter'][column.name].value2, {attr: {class: 'grid-filter-input2'}}) }}
+                    </div>
+                </th>
+            {% else %}
+                <th></th>
+            {% endif %}
+        {% endfor %}
+        {% if not grid.config.actionColumnOnLeft and grid.config.actionColumns|length > 0 %}
+            <th></th>
+        {% endif %}
+    </tr>
+    {% if grid.filtered %}
+    <tr>
+        <td colspan="{{ grid.config.columns|length + ((grid.config.actionColumns|length > 0) ? 1 : 0) }}">
+            <button class="btn btn-warning col-sm-12 grid-reset"><i class="fa fa-danger"></i> Warning, values are filtered, click to clear filters</button>
+        </td>
+    </tr>
+    {% endif %}
+{% endblock gridHeaderFiltering %}
+
+{% block gridHeader %}
+    <thead>
+    {{ block('gridHeaderRow') }}
+    {{ block('gridHeaderFiltering') }}
+    </thead>
+{% endblock gridHeader %}
+
+{% block gridFooter %}
+    <tfoot>
+    {{ block('gridHeaderRow') }}
+    </tfoot>
+{% endblock gridFooter %}
+
+{% block gridBody %}
+    <tbody>
+    {% for record in grid.gridModel.data %}
+        {{ block('gridRow') }}
+    {% endfor %}
+    </tbody>
+{% endblock gridBody %}
+
+{% block gridTable %}
+    {{ form_start(grid.form, {attr: {class: 'dataGrid no-ajax', 'data-grid-name': grid.config.name }}) }}
+    <div class="col-sm-12 text-right">
+        <span class="label label-success">{{ 'Page'|trans }} {{ grid.currentPage }} {{ 'of'|trans }} {{ grid.totalPages }}</span>
+        <span class="label label-success">{{ 'Found'|trans }} {{ grid.totalRecords }} {{ 'records'|trans }}</span>
+    </div>
+    <table class="table table-bordered table-striped dataTable">
+        {{ block('gridHeader') }}
+        {{ block('gridBody') }}
+        {{ block('gridFooter') }}
+    </table>
+    <div class="grid-pagination text-right">
+        <label>{{ 'Page'|trans }}: </label>
+        {% set start = 1 %}
+        {% set stop = (grid.currentPage + 5) %}
+        {% if grid.currentPage - 4  > 1 %}
+            {% set start = (grid.page- 4) %}
+        {% endif %}
+        {% if grid.currentPage + 5  >= grid.totalPages %}
+            {% set stop = grid.totalPages %}
+        {% endif %}
+
+        {% for i in start..stop %}
+            <label>{{ i }}
+                <input type="radio" value="{{ i }}" {% if grid.currentPage == i %}checked{% endif %} />
+            </label>
+        {% endfor %}
+
+        {{ form_row(grid.form.page) }}
+    </div>
+    {{ form_end(grid.form) }}
+{% endblock gridTable %}
