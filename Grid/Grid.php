@@ -21,6 +21,7 @@ use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -85,6 +86,8 @@ class Grid
 
     private $totalRecords = 0;
 
+    private $executed = false;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         RequestStack $request,
@@ -108,9 +111,49 @@ class Grid
 
     public function configure(GridConfiguratorInterface $configurator)
     {
+        $this->resetObject();
         $this->config = $configurator;
 
-        return $this;
+        return clone $this;
+    }
+
+    private function execute()
+    {
+        if (!$this->executed) {
+            $this->init();
+            $this->qb->from($this->config->getEntityClass(), self::GRID_QUERY_ALIAS);
+
+            foreach ($this->config->getColumns() as $column) {
+                $this->qb->addSelect($column->getSelect().' '.$column->getName());
+            }
+            $this->config->manipulateQuery($this->qb);
+
+            if ($this->formObject->isSubmitted() && $this->formObject->isValid()) {
+                $this->processSort();
+                $this->processFilter();
+            }
+
+            $this->totalRecords = (int)(clone $this->qb)->select('COUNT('.self::GRID_QUERY_ALIAS.')')->getQuery(
+            )->getSingleScalarResult();
+            $this->totalPages   = ceil($this->totalRecords / $this->config->getPerPage());
+
+            $this->currentPage = $this->formData['page'] ?? 1;
+
+            if($this->currentPage > $this->totalPages){
+                $this->currentPage = 1;
+            }
+
+            $this->qb->setFirstResult(
+                abs(($this->currentPage - 1) * $this->config->getPerPage())
+            );
+
+            $this->qb->setMaxResults($this->config->getPerPage());
+
+            $this->gridModel->setData($this->qb->getQuery()->getArrayResult());
+            $this->gridModel->setRecordsTotal($this->gridModel->getRecordsFiltered());
+
+            $this->executed = true;
+        }
     }
 
     /**
@@ -118,35 +161,25 @@ class Grid
      */
     public function getGrid()
     {
-        $this->init();
-        $this->qb->from($this->config->getEntityClass(), self::GRID_QUERY_ALIAS);
-
-        foreach ($this->config->getColumns() as $column) {
-            $this->qb->addSelect($column->getSelect().' '.$column->getName());
-        }
-        $this->config->manipulateQuery($this->qb);
-
-        if ($this->formObject->isSubmitted() && $this->formObject->isValid()) {
-            $this->processSort();
-            $this->processFilter();
-        }
-
-        $this->totalRecords = (int)(clone $this->qb)->select('COUNT('.self::GRID_QUERY_ALIAS.')')->getQuery(
-        )->getSingleScalarResult();
-        $this->totalPages = ceil($this->totalRecords / $this->config->getPerPage());
-
-        $this->currentPage = $this->formData['page'] ?? 1;
-
-        $this->qb->setFirstResult(
-            abs(($this->currentPage - 1) * $this->config->getPerPage())
-        );
-
-        $this->qb->setMaxResults($this->config->getPerPage());
-
-        $this->gridModel->setData($this->qb->getQuery()->getArrayResult());
-        $this->gridModel->setRecordsTotal($this->gridModel->getRecordsFiltered());
+        $this->execute();
 
         return $this;
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function getJsonResponse():JsonResponse
+    {
+        $this->execute();
+
+        $jsonObject = new \stdClass();
+        $jsonObject->formKey = $this->config->getName();
+        $jsonObject->totalPages = $this->totalPages;
+        $jsonObject->currnetPage = $this->currentPage;
+        $jsonObject->data = $this->getGridModel()->getData();
+
+        return new JsonResponse($jsonObject);
     }
 
     public function generateActionLink(GridActionColumn $actionColumn, $row)
@@ -334,5 +367,18 @@ class Grid
         return $this->currentPage;
     }
 
-
+    private function resetObject()
+    {
+        $this->classMetadata = null;
+        $this->qb            = null;
+        $this->gridModel     = null;
+        $this->formBuilder   = null;
+        $this->formObject    = null;
+        $this->form          = null;
+        $this->formData      = [];
+        $this->totalRecords  = 0;
+        $this->totalPages    = 0;
+        $this->currentPage   = 1;
+        $this->executed      = false;
+    }
 }
