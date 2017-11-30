@@ -226,6 +226,11 @@ class Grid
             }
             /** Filter fields */
             if ($column->isFilterable()) {
+                if(!$column->getFilterGroup()){
+                    $column->setFilterable(false);
+                    continue;
+                }
+
                 $filterBuilder->add(
                     $column->getName(),
                     FilterableType::class,

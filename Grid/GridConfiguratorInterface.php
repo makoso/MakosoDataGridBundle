@@ -8,11 +8,10 @@
 
 namespace Makoso\DatagridBundle\Grid;
 
-
-use App\Grid\Column\GridActionColumn;
-use App\Grid\Column\GridColumn;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
+use Makoso\DatagridBundle\Grid\Column\GridActionColumn;
+use Makoso\DatagridBundle\Grid\Column\GridColumn;
 
 interface GridConfiguratorInterface
 {

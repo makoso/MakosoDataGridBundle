@@ -189,7 +189,7 @@ class GridColumn
     /**
      * @return FilterGroupInterface
      */
-    public function getFilterGroup():FilterGroupInterface
+    public function getFilterGroup():?FilterGroupInterface
     {
         return $this->filterGroup;
     }
