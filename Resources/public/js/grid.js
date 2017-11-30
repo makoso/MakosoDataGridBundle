@@ -7,7 +7,7 @@ var Grid = {
         Grid.initReset(gridFormSelector);
     },
     initSorting: function (gridFormSelector) {
-        $('body').on('click', gridFormSelector + ' .sortable', function () {
+        body.on('click', gridFormSelector + ' .sortable', function () {
             var $sortSelector = $(this).closest(gridFormSelector).attr('name') + '_sort_' + $(this).attr('data-grid-column');
             var $sorter = $('#' + $sortSelector);
 
@@ -22,17 +22,13 @@ var Grid = {
         });
     },
     initChanges: function (gridFormSelector) {
-        $('body').on('change', gridFormSelector + ' input[type="hidden"]', function () {
+        body.on('change', gridFormSelector + ' input[type="hidden"]', function () {
             $(this).closest(gridFormSelector).submit();
-        });
-        $('body').on('ifChecked change', gridFormSelector + ' .grid-pagination input:radio', function () {
-            $('input[name="' + $(this).closest(gridFormSelector).attr('name') + '[page]"]').val($(this).val()).change();
-            return false;
         });
 
     },
     initSubmit: function (gridFormSelector) {
-        $('body').on('submit', gridFormSelector, function (e) {
+        body.on('submit', gridFormSelector, function (e) {
             var $form = $(this);
             if ($form.attr('data-no-ajax') != "false") {
                 var $hasBox = $form.hasClass('box');
@@ -60,7 +56,7 @@ var Grid = {
                 return false;
             }
         });
-        $('body').on('keydown', gridFormSelector + ' input', function (e) {
+        body.on('keydown', gridFormSelector + ' input', function (e) {
             if (e.keyCode == 13) {
                 $(this).closest('form').submit();
                 return false;
@@ -69,7 +65,7 @@ var Grid = {
 
     },
     initFilters: function (gridFormSelector) {
-        $('body').on('change', gridFormSelector + ' select.grid-filter-select', function () {
+        body.on('change', gridFormSelector + ' select.grid-filter-select', function () {
             var $inputWrapper1 = $(this).closest('.filterable').find('.grid-filter-input').closest('.input-group');
             var $inputWrapper2 = $(this).closest('.filterable').find('.grid-filter-input2').closest('.input-group');
             var $needSecondInput = $(this).find('option[value="' + $(this).val() + '"]').attr('data-second-input') == "true";
@@ -89,7 +85,7 @@ var Grid = {
         $(gridFormSelector + ' select.grid-filter-select').change();
     },
     initReset: function (gridFormSelector) {
-        $('body').on('click', gridFormSelector + ' .grid-reset', function(){
+        body.on('click', gridFormSelector + ' .grid-reset', function(){
             var form = $(this).closest('form');
 
             form.find('input').each(function(){
