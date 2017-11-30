@@ -74,49 +74,40 @@ abstract class GridConfigurator implements GridConfiguratorInterface
 ```
 
 ### Atrybut $name (Wymagane)
-<pre>
+
 Określa nazwę grida a także formularza który jest używany do paginacji, sortowania a także filtrowania
-</pre>
 
 ### Atrybut $entityClass (Wymagane)
 
-<pre>
 Określa entity które zostanie użyte w do stworzenia zapytania
-</pre>
 
 ### Atrybut $perPage (Domyślnie 5)
 
-<pre>
 Określa iloś rekordów pobieraną na jednej stronie
-</pre>
 
 ### Atrybut $actionColumnOnLeft (Domyślnie false)
 
-<pre>
 Domyślnie kolumna akcji(jeżeli są ustawione) wyświetlana jest po prawej stronie grida
 jeżeli ustawisz ten parametr na true, kolumna akcji będzie wyświetlona z lewej strony
-</pre>
 
 ### Atrybut $columns oraz metoda getColumns()
 
-<pre>
 Masz do wyboru cze modyfikujesz w jakiś sposób obiekt $columns dodając do niego kolumny 
 czy czy przeciążasz metodę getColumns i zwracasz nowy obiekt ArrayCollection zawierający konfigurację kolumn
-</pre>
 
 ### Atrybut $actionColumns oraz metoda getActionColumns()
 
-<pre>
+
 Masz do wyboru cze modyfikujesz w jakiś sposób obiekt $actionColumns dodając do niego akcje 
 czy czy przeciążasz metodę getColumns i zwracasz nowy obiekt ArrayCollection zawierający konfigurację akcji możliwych do wykonania na pojedynczym rekordzie
-</pre>
+
 
 ### Metoda titleFormatting($title)
 
-<pre>
+
 Pozwala na modyfikację tytułu przekazywanego w konfiguracji kolumn(jeżeli tego nie zrobisz zostanie użyty name kolumny) pozwala to na doklejenie wartości
 potrzebnych do zadziałania ogólnie przyjętego standardu budowania kluczy tłumaczeń np:
-</pre>
+
  ```php
  public function titleFormatting(string $title):string
      {
@@ -126,11 +117,9 @@ potrzebnych do zadziałania ogólnie przyjętego standardu budowania kluczy tłu
  
 ### Metoda manipulateQuery($queryBuilder)
 
-<pre>
 Pozwala na zmianę bazowygo zapytania, jest to przydatne podczas gdy chcemy wyświetlić tylko powiązane rekordy na podglądzie głównego rekordu lub wyświetlić
 tylko rekordy spełniające tylko określone nasze zapytanie
 np:
-</pre>
  
  ```php
 public function manipulateQuery(QueryBuilder $queryBuilder):void
