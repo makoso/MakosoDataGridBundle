@@ -1,4 +1,4 @@
-#Przykład wykorzystania
+# Przykład wykorzystania
 
 Załóżmy że masz entity podobne do tego:
 
