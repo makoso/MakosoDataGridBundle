@@ -22,7 +22,6 @@ Konfiguracja pochodzi z [Przykład wykorzystania](baseExample.md) zmieni się ty
 namespace AppBundle\Controller;
 
 use AppBundle\Grid\ExampleGrid;
-use AppBundle\Grid\ExampleAnotherGrid;
 use Makoso\DatagridBundle\Grid\Grid;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -34,7 +33,7 @@ class DefaultController extends Controller
      */
     public function indexAction(Grid $grid)
     {
-        return $grid->configure(new VirtualEntityGrid())->getJsonResponse();
+        return $grid->configure(new ExampleGrid())->getJsonResponse();
     }
 }
 
