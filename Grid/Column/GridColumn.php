@@ -31,7 +31,7 @@ class GridColumn
 
     public function __construct(
         string $name,
-        string $select,
+        ?string $select = null,
         ?string $title = null,
         bool $filterable = true,
         bool $sortable = true,
@@ -39,7 +39,7 @@ class GridColumn
     )
     {
         $this->name = $name;
-        $this->select = $select;
+        $this->select = $select ? $select : $name;
         $this->title = $title ?? $name;
         $this->filterable = $filterable;
         $this->sortable = $sortable;
