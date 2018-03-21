@@ -121,25 +121,14 @@ class Grid
     {
         if (!$this->executed) {
             $this->init();
-            $this->qb->from($this->config->getEntityClass(), self::GRID_QUERY_ALIAS);
+            $this->buildBaseQuery();
 
-            foreach ($this->config->getColumns() as $column) {
-                $this->qb->addSelect($column->getSelect().' '.$column->getName());
-            }
-            $this->config->manipulateQuery($this->qb);
-
-            if ($this->formObject->isSubmitted() && $this->formObject->isValid()) {
-                $this->processSort();
-                $this->processFilter();
-            }
-
-            $this->totalRecords = (int)(clone $this->qb)->select('COUNT('.self::GRID_QUERY_ALIAS.')')->getQuery(
-            )->getSingleScalarResult();
+            $this->totalRecords = $this->doQueryForTotalRecords();
             $this->totalPages   = ceil($this->totalRecords / $this->config->getPerPage());
 
             $this->currentPage = $this->formData['page'] ?? 1;
 
-            if($this->currentPage > $this->totalPages){
+            if ($this->currentPage > $this->totalPages) {
                 $this->currentPage = 1;
             }
 
@@ -173,11 +162,11 @@ class Grid
     {
         $this->execute();
 
-        $jsonObject = new \stdClass();
-        $jsonObject->formKey = $this->config->getName();
-        $jsonObject->totalPages = $this->totalPages;
+        $jsonObject              = new \stdClass();
+        $jsonObject->formKey     = $this->config->getName();
+        $jsonObject->totalPages  = $this->totalPages;
         $jsonObject->currnetPage = $this->currentPage;
-        $jsonObject->data = $this->getGridModel()->getData();
+        $jsonObject->data        = $this->getGridModel()->getData();
 
         return new JsonResponse($jsonObject);
     }
@@ -226,7 +215,7 @@ class Grid
             }
             /** Filter fields */
             if ($column->isFilterable()) {
-                if(!$column->getFilterGroup()){
+                if (!$column->getFilterGroup()) {
                     $column->setFilterable(false);
                     continue;
                 }
@@ -385,5 +374,39 @@ class Grid
         $this->totalPages    = 0;
         $this->currentPage   = 1;
         $this->executed      = false;
+    }
+
+    private function buildBaseQuery()
+    {
+        if ($this->config->getQueryBuilder() === null) {
+            $this->qb->from($this->config->getEntityClass(), self::GRID_QUERY_ALIAS);
+
+            foreach ($this->config->getColumns() as $column) {
+                $this->qb->addSelect($column->getSelect().' '.$column->getName());
+            }
+        } else {
+            $this->qb = $this->config->getQueryBuilder();
+        }
+
+        $this->config->manipulateQuery($this->qb);
+
+        if ($this->formObject->isSubmitted() && $this->formObject->isValid()) {
+            $this->processSort();
+            $this->processFilter();
+        }
+    }
+
+    /**
+     * @return int
+     */
+    private function doQueryForTotalRecords():int
+    {
+        if ($this->config->getQueryBuilder() === null) {
+            return (int)(clone $this->qb)->select('COUNT('.self::GRID_QUERY_ALIAS.')')->getQuery(
+            )->getSingleScalarResult();
+        } else {
+            return (int)(clone $this->qb)->select('COUNT('.$this->config->getRootAlias().')')->getQuery(
+            )->getSingleScalarResult();
+        }
     }
 }
