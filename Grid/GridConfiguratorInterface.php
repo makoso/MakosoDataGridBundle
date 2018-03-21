@@ -61,4 +61,28 @@ interface GridConfiguratorInterface
     public function titleFormatting(string $title):string;
 
     public function manipulateQuery(QueryBuilder $queryBuilder):void;
+
+    /**
+     * @return QueryBuilder
+     */
+    public function getQueryBuilder(): ?QueryBuilder;
+
+    /**
+     * @return string
+     */
+    public function getRootAlias():string;
+
+    /**
+     * @param string $rootAlias
+     *
+     * @return GridConfigurator
+     */
+    public function setRootAlias(string $rootAlias):GridConfigurator;
+
+    /**
+     * @param QueryBuilder $queryBuilder
+     *
+     * @return GridConfigurator
+     */
+    public function setQueryBuilder(QueryBuilder $queryBuilder);
 }

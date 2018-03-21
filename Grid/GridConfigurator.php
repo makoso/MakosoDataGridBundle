@@ -20,6 +20,8 @@ abstract class GridConfigurator implements GridConfiguratorInterface
     protected $entityClass;
     protected $actionColumnOnLeft = false;
     protected $perPage = 5;
+    protected $queryBuilder;
+    protected $rootAlias = '_PLEASE_PROVIDE_ROOT_ENTITY_ALIAS_';
 
     public function __construct()
     {
@@ -78,4 +80,46 @@ abstract class GridConfigurator implements GridConfiguratorInterface
     }
 
     public function manipulateQuery(QueryBuilder $queryBuilder):void{}
+
+    /**
+     * @return QueryBuilder
+     */
+    public function getQueryBuilder(): ?QueryBuilder
+    {
+        return $this->queryBuilder;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRootAlias():string
+    {
+        return $this->rootAlias;
+    }
+
+    /**
+     * @param string $rootAlias
+     *
+     * @return GridConfigurator
+     */
+    public function setRootAlias(string $rootAlias):GridConfigurator
+    {
+        $this->rootAlias = $rootAlias;
+
+        return $this;
+    }
+
+    /**
+     * @param QueryBuilder $queryBuilder
+     *
+     * @return GridConfigurator
+     */
+    public function setQueryBuilder(QueryBuilder $queryBuilder)
+    {
+        $this->queryBuilder = $queryBuilder;
+
+        return $this;
+    }
+
+
 }
