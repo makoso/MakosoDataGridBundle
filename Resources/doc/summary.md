@@ -5,3 +5,4 @@
   * [MultipleGrid](multipleGrid.md)
   * [Api support (JSONResponse)](apiSupport.md)
   * [Konfiguracja GRID-a](gridConfiguration.md)
+  * [Konfiguracja GRID-a JS](gridConfigurationJS.md)
