@@ -402,9 +402,15 @@ class Grid
     private function doQueryForTotalRecords():int
     {
         if ($this->config->getQueryBuilder() === null) {
-            return (int)(clone $this->qb)->select('COUNT('.self::GRID_QUERY_ALIAS.')')->getQuery(
+            $qb = clone $this->qb;
+            $qb->resetDQLPart('select');
+            $qb->resetDQLPart('orderBy');
+            return (int)$qb->select('COUNT('.self::GRID_QUERY_ALIAS.')')->getQuery(
             )->getSingleScalarResult();
         } else {
+            $qb = clone $this->config->getQueryBuilder();
+            $qb->resetDQLPart('select');
+            $qb->resetDQLPart('orderBy');
             return (int)(clone $this->qb)->select('COUNT('.$this->config->getRootAlias().')')->getQuery(
             )->getSingleScalarResult();
         }
