@@ -8,7 +8,6 @@
 
 namespace Makoso\DatagridBundle\Grid\Column;
 
-
 class GridActionColumn
 {
     /** @var  string */
@@ -21,19 +20,23 @@ class GridActionColumn
     protected $cssClass;
     /** @var  string */
     protected $title;
+    /** @var callable|null */
+    protected $renderCondition;
 
     public function __construct(
         ?string $name,
         ?string $routeName,
         ?array $routeParametersMapping,
         ?string $title = null,
-        ?string $cssClass = null
+        ?string $cssClass = null,
+        ?callable $renderCondition = null
     ) {
         $this->name                   = $name;
         $this->routeName              = $routeName;
         $this->routeParametersMapping = $routeParametersMapping;
         $this->title                  = $title;
         $this->cssClass               = $cssClass;
+        $this->renderCondition        = $renderCondition;
     }
 
     /**
@@ -136,5 +139,16 @@ class GridActionColumn
         return $this;
     }
 
+    public function getRenderCondition(): ?callable
+    {
+        return $this->renderCondition;
+    }
+
+    public function setRenderCondition(?callable $renderCondition): GridActionColumn
+    {
+        $this->renderCondition = $renderCondition;
+
+        return $this;
+    }
 
 }

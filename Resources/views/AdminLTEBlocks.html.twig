@@ -1,7 +1,7 @@
 {% block gridActionsBodyCeil %}
     <td>
         <div class="btn-group">
-            {% for actionColumn in grid.config.actionColumns %}
+            {% for actionColumn in grid.config.actionColumnsActive(record) %}
                 <a href="{{ grid.generateActionLink(actionColumn, record) }}" class="{{ actionColumn.cssClass }} grid-action-{{ actionColumn.name }}">{{ actionColumn.title|trans|raw }}</a>
             {% endfor %}
         </div>
