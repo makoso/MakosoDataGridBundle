@@ -411,7 +411,7 @@ class Grid
             $qb = clone $this->config->getQueryBuilder();
             $qb->resetDQLPart('select');
             $qb->resetDQLPart('orderBy');
-            return (int)(clone $this->qb)->select('COUNT('.$this->config->getRootAlias().')')->getQuery(
+            return (int)$qb->select('COUNT('.$this->config->getRootAlias().')')->getQuery(
             )->getSingleScalarResult();
         }
     }
