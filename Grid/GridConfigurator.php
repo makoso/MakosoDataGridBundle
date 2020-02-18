@@ -11,6 +11,7 @@ namespace Makoso\DatagridBundle\Grid;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
+use Makoso\DatagridBundle\Grid\Column\GridActionColumn;
 
 abstract class GridConfigurator implements GridConfiguratorInterface
 {
@@ -29,17 +30,31 @@ abstract class GridConfigurator implements GridConfiguratorInterface
         $this->columns = new ArrayCollection();
     }
 
-    public function getActionColumns():ArrayCollection
+    /** @deprecated */
+    public function getActionColumns(): ArrayCollection
     {
         return $this->actionColumns;
     }
 
-    public function getColumns():ArrayCollection
+    public function getActionColumnsActive(array $row): ArrayCollection
+    {
+        return $this->actionColumns->filter(
+            function (GridActionColumn $actionColumn) use ($row) {
+                if (is_callable($actionColumn->getRenderCondition())) {
+                    return $actionColumn->getRenderCondition()($row);
+                }
+
+                return true;
+            }
+        );
+    }
+
+    public function getColumns(): ArrayCollection
     {
         return $this->columns;
     }
 
-    public function getActionColumnOnLeft():bool
+    public function getActionColumnOnLeft(): bool
     {
         return $this->actionColumnOnLeft;
     }
@@ -49,9 +64,9 @@ abstract class GridConfigurator implements GridConfiguratorInterface
      * Entity class
      * @throws \ErrorException
      */
-    public function getEntityClass():string
+    public function getEntityClass(): string
     {
-        if(!$this->entityClass){
+        if (!$this->entityClass) {
             throw new \ErrorException('entityClass must be provided');
         }
         return $this->entityClass;
@@ -61,25 +76,27 @@ abstract class GridConfigurator implements GridConfiguratorInterface
      * @return string
      * @throws \ErrorException
      */
-    public function getName():string
+    public function getName(): string
     {
-        if(!$this->name){
+        if (!$this->name) {
             throw new \ErrorException('name must be provided');
         }
         return $this->name;
     }
 
-    public function titleFormatting(string $title):string
+    public function titleFormatting(string $title): string
     {
         return $title;
     }
 
-    public function getPerPage():int
+    public function getPerPage(): int
     {
         return $this->perPage;
     }
 
-    public function manipulateQuery(QueryBuilder $queryBuilder):void{}
+    public function manipulateQuery(QueryBuilder $queryBuilder): void
+    {
+    }
 
     /**
      * @return QueryBuilder
@@ -92,7 +109,7 @@ abstract class GridConfigurator implements GridConfiguratorInterface
     /**
      * @return string
      */
-    public function getRootAlias():string
+    public function getRootAlias(): string
     {
         return $this->rootAlias;
     }
@@ -102,7 +119,7 @@ abstract class GridConfigurator implements GridConfiguratorInterface
      *
      * @return GridConfigurator
      */
-    public function setRootAlias(string $rootAlias):GridConfigurator
+    public function setRootAlias(string $rootAlias): GridConfigurator
     {
         $this->rootAlias = $rootAlias;
 
