@@ -61,7 +61,7 @@
         {% endif %}
         {% for column in grid.config.columns %}
             {% if column.filterable %}
-                <th style="vertical-align: top;" class="{% if column.filterable %}filterable{% endif %}" data-grid-column="{{ column.name }}">
+                <th style="vertical-align: top;" class="filterable" data-grid-column="{{ column.name }}">
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fa fa-filter"></i></span>
                         {{ form_row(grid.form['filter'][column.name].filterType, {attr: {class: 'grid-filter-select'}}) }}
