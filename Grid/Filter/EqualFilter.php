@@ -18,7 +18,7 @@ class EqualFilter implements FilterInterface
     public function filter(QueryBuilder $queryBuilder, GridColumn $gridColumn, Grid $grid):void
     {
         $value = $gridColumn->getFilterableValue()['value'];
-        if(!empty($value)){
+        if(!empty($value) || $value === 0){
             $parameterKey = $grid->getNextBindNumber();
             if($queryBuilder->getDQLParts()['where'] == null){
                 $queryBuilder->where($gridColumn->getSelect().' = ?'.$parameterKey);
