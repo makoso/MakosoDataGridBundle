@@ -35,7 +35,8 @@ class FilterableType extends AbstractType
                     ];
                 },
                 'required' => false,
-                'placeholder' => 'Enable filtering'
+                'placeholder' => 'Enable filtering',
+                'data' => $filterGroup->getFilters()->count() === 1 ? $filterGroup->getFilters()->first() : null,
             ])
             ->add('value', $filterGroup->getFirstInputType(), $filterGroup->getFirstInputOptions())
             ->add('value2', $filterGroup->getSecondInputType(), $filterGroup->getSecondInputOptions())

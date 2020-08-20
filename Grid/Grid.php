@@ -276,7 +276,7 @@ class Grid
             if ($column->isFilterable() && $column->getFilterGroup() != null) {
                 $filterData = $this->formData[self::GRID_FORM_FILTERABLE_KEY][$column->getName()];
 
-                if ($filterData['filterType'] instanceof FilterInterface) {
+                if ($filterData['filterType'] instanceof FilterInterface && (!empty($filterData['value']) || !empty($filterData['value2']))) {
                     $column->setFilterableValue(
                         [
                             'value'  => $filterData['value'],
