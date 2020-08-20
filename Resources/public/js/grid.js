@@ -189,7 +189,11 @@ var Grid = {
             });
 
             form.find('select').each(function(){
-                $(this).prop('selectedIndex', 0).val("");
+                if(!$(this).hasClass('not-clear')) {
+                    $(this).prop('selectedIndex', 0).val("");
+                } else {
+                    $(this).prop('selectedIndex', 1).val(0);
+                }
             });
 
             form.find('textarea').each(function(){
