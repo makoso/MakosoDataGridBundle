@@ -6,12 +6,13 @@
   "homepage": "https://github.com/makoso/",
   "license": "MIT",
   "require": {
-    "php": "^7.0.8",
+    "php": "^7.1.0",
     "symfony/form": "^3.3||^4.0",
     "symfony/framework-bundle": "^3.3||^4.0",
     "symfony/orm-pack": "^1.0",
     "symfony/translation": "^3.3||^4.0",
     "symfony/twig-bundle": "^3.3||^4.0",
+    "symfony/http-foundation": "^3.3||^4.0",
     "symfony/yaml": "^3.3||^4.0"
   },
   "authors": [

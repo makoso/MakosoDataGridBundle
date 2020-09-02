@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\QueryBuilder;
 use Makoso\DatagridBundle\Form\Type\FilterableType;
 use Makoso\DatagridBundle\Grid\Column\GridActionColumn;
+use Makoso\DatagridBundle\Grid\Column\GridColumn;
 use Makoso\DatagridBundle\Grid\Filter\FilterInterface;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
@@ -24,6 +25,7 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\Router;
 
@@ -31,80 +33,73 @@ class Grid
 {
     const GRID_QUERY_ALIAS = '_grid';
 
-    const GRID_SORT_ASC  = 'ASC';
+    const GRID_SORT_ASC = 'ASC';
     const GRID_SORT_DESC = 'DESC';
     const GRID_SORT_NONE = false;
 
-    const GRID_FORM_SORT_KEY     = 'sort';
+    const GRID_FORM_SORT_KEY = 'sort';
     const GRID_FORM_SORT_OPTIONS = [self::GRID_SORT_NONE, self::GRID_SORT_ASC, self::GRID_SORT_DESC];
 
     const GRID_FORM_FILTERABLE_KEY = 'filter';
 
     /** @var  EntityManagerInterface */
     private $em;
-
     /** @var  Request */
     private $request;
-
     /** @var GridConfiguratorInterface */
     private $config;
-
     /** @var QueryBuilder */
     private $qb;
-
     /** @var ClassMetadata */
     private $classMetadata;
-
     /** @var GridModel */
     private $gridModel;
-
     /** @var UrlGeneratorInterface */
     private $router;
-
     /** @var FormFactory */
     private $formFactory;
-
     /** @var FormBuilderInterface */
     private $formBuilder;
-
+    /** @var SessionInterface */
+    private $sessionStorage;
+    /** @var bool */
+    private $saveFiltersInSession;
     /** @var FormView */
     private $form;
-
     /** @var FormInterface */
     private $formObject;
-
     /** @var array */
     private $formData = [];
     /** @var int */
     private $bindNumber = 0;
     /** @var bool */
     private $filtered = false;
-
     private $currentPage = 1;
-
     private $totalPages = 0;
-
     private $totalRecords = 0;
-
     private $executed = false;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         RequestStack $request,
         UrlGeneratorInterface $router,
-        FormFactoryInterface $formFactory
+        FormFactoryInterface $formFactory,
+        SessionInterface $sessionStorage,
+        bool $saveFiltersInSession = false
     ) {
-        $this->em          = $entityManager;
-        $this->router      = $router;
-        $this->request     = $request->getCurrentRequest();
+        $this->em = $entityManager;
+        $this->router = $router;
+        $this->request = $request->getCurrentRequest();
         $this->formFactory = $formFactory;
+        $this->sessionStorage = $sessionStorage;
+        $this->saveFiltersInSession = $saveFiltersInSession;
     }
 
-    public function init():void
+    public function init(): void
     {
         $this->classMetadata = $this->em->getClassMetadata($this->config->getEntityClass());
-        $this->qb            = $this->em->createQueryBuilder();
-        $this->gridModel     = (new GridModel())->setGrid($this);
+        $this->qb = $this->em->createQueryBuilder();
+        $this->gridModel = (new GridModel())->setGrid($this);
 
         $this->generateForm();
     }
@@ -124,7 +119,7 @@ class Grid
             $this->buildBaseQuery();
 
             $this->totalRecords = $this->doQueryForTotalRecords();
-            $this->totalPages   = ceil($this->totalRecords / $this->config->getPerPage());
+            $this->totalPages = ceil($this->totalRecords / $this->config->getPerPage());
 
             $this->currentPage = $this->formData['page'] ?? 1;
 
@@ -158,22 +153,22 @@ class Grid
     /**
      * @return JsonResponse
      */
-    public function getJsonResponse():JsonResponse
+    public function getJsonResponse(): JsonResponse
     {
         $this->execute();
 
-        $jsonObject              = new \stdClass();
-        $jsonObject->formKey     = $this->config->getName();
-        $jsonObject->totalPages  = $this->totalPages;
+        $jsonObject = new \stdClass();
+        $jsonObject->formKey = $this->config->getName();
+        $jsonObject->totalPages = $this->totalPages;
         $jsonObject->currnetPage = $this->currentPage;
-        $jsonObject->data        = $this->getGridModel()->getData();
+        $jsonObject->data = $this->getGridModel()->getData();
 
         return new JsonResponse($jsonObject);
     }
 
     public function generateActionLink(GridActionColumn $actionColumn, $row)
     {
-        $mapping       = $actionColumn->getRouteParametersMapping();
+        $mapping = $actionColumn->getRouteParametersMapping();
         $mapParameters = array_flip($mapping);
 
         foreach ($mapping as $from => $to) {
@@ -189,20 +184,20 @@ class Grid
             $this->config->getName(),
             FormType::class,
             null,
-            ['label' => false]
+            ['label' => false, 'allow_extra_fields' => true]
         );
 
-        $sortBuilder   = $this->formFactory->createNamedBuilder(
+        $sortBuilder = $this->formFactory->createNamedBuilder(
             self::GRID_FORM_SORT_KEY,
             FormType::class,
             null,
-            ['label' => false]
+            ['label' => false, 'allow_extra_fields' => true]
         );
         $filterBuilder = $this->formFactory->createNamedBuilder(
             self::GRID_FORM_FILTERABLE_KEY,
             FormType::class,
             null,
-            ['label' => false]
+            ['label' => false, 'allow_extra_fields' => true]
         );
 
         foreach ($this->config->getColumns() as $column) {
@@ -224,7 +219,7 @@ class Grid
                     $column->getName(),
                     FilterableType::class,
                     [
-                        'label'  => false,
+                        'label' => false,
                         'filter' => $column->getFilterGroup(),
                     ]
                 );
@@ -246,7 +241,16 @@ class Grid
 
         $this->formObject = $this->formBuilder->getForm();
         $this->formObject->handleRequest($this->request);
-        $this->form     = $this->formObject->createView();
+        if (
+            $this->saveFiltersInSession
+            && $this->sessionStorage->has($this->getSessionStorageKey())
+            && !$this->formObject->isSubmitted()
+        ) {
+            $this->formObject->setData(
+                [self::GRID_FORM_FILTERABLE_KEY => $this->sessionStorage->get($this->getSessionStorageKey())]
+            );
+        }
+        $this->form = $this->formObject->createView();
         $this->formData = $this->formObject->getData();
     }
 
@@ -269,19 +273,19 @@ class Grid
         }
     }
 
-    private function processFilter()
+    private function processFilter(array $data = [])
     {
         foreach ($this->config->getColumns() as &$column) {
             /** filter fields */
-            if ($column->isFilterable() && $column->getFilterGroup() != null) {
-                $filterData = $this->formData[self::GRID_FORM_FILTERABLE_KEY][$column->getName()];
+            if ($this->columnIsFiltered($column, $data)) {
+                $filterData = $data[$column->getName()];
 
                 $hasFirstValue = !empty($filterData['value']) || $filterData['value'] === 0;
                 $hasSecondValue = !empty($filterData['value2']) || $filterData['value2'] === 0;
                 if ($filterData['filterType'] instanceof FilterInterface && ($hasFirstValue || $hasSecondValue)) {
                     $column->setFilterableValue(
                         [
-                            'value'  => $filterData['value'],
+                            'value' => $filterData['value'],
                             'value2' => $filterData['value2'],
                         ]
                     );
@@ -296,7 +300,7 @@ class Grid
     /**
      * @return GridConfiguratorInterface
      */
-    public function getConfig():GridConfiguratorInterface
+    public function getConfig(): GridConfiguratorInterface
     {
         return $this->config;
     }
@@ -304,7 +308,7 @@ class Grid
     /**
      * @return GridModel
      */
-    public function getGridModel():GridModel
+    public function getGridModel(): GridModel
     {
         return $this->gridModel;
     }
@@ -312,7 +316,7 @@ class Grid
     /**
      * @return FormView
      */
-    public function getForm():FormView
+    public function getForm(): FormView
     {
         return $this->form;
     }
@@ -334,7 +338,7 @@ class Grid
     /**
      * @return bool
      */
-    public function isFiltered():bool
+    public function isFiltered(): bool
     {
         return $this->filtered;
     }
@@ -342,7 +346,7 @@ class Grid
     /**
      * @return int
      */
-    public function getTotalPages():int
+    public function getTotalPages(): int
     {
         return $this->totalPages;
     }
@@ -350,7 +354,7 @@ class Grid
     /**
      * @return int
      */
-    public function getTotalRecords():int
+    public function getTotalRecords(): int
     {
         return $this->totalRecords;
     }
@@ -358,7 +362,7 @@ class Grid
     /**
      * @return int
      */
-    public function getCurrentPage():int
+    public function getCurrentPage(): int
     {
         return $this->currentPage;
     }
@@ -366,16 +370,16 @@ class Grid
     private function resetObject()
     {
         $this->classMetadata = null;
-        $this->qb            = null;
-        $this->gridModel     = null;
-        $this->formBuilder   = null;
-        $this->formObject    = null;
-        $this->form          = null;
-        $this->formData      = [];
-        $this->totalRecords  = 0;
-        $this->totalPages    = 0;
-        $this->currentPage   = 1;
-        $this->executed      = false;
+        $this->qb = null;
+        $this->gridModel = null;
+        $this->formBuilder = null;
+        $this->formObject = null;
+        $this->form = null;
+        $this->formData = [];
+        $this->totalRecords = 0;
+        $this->totalPages = 0;
+        $this->currentPage = 1;
+        $this->executed = false;
     }
 
     private function buildBaseQuery()
@@ -384,37 +388,60 @@ class Grid
             $this->qb->from($this->config->getEntityClass(), self::GRID_QUERY_ALIAS);
 
             foreach ($this->config->getColumns() as $column) {
-                $this->qb->addSelect($column->getSelect().' '.$column->getName());
+                $this->qb->addSelect($column->getSelect() . ' ' . $column->getName());
             }
         } else {
             $this->qb = $this->config->getQueryBuilder();
         }
 
         $this->config->manipulateQuery($this->qb);
+        $this->config->getName();
 
-        if ($this->formObject->isSubmitted() && $this->formObject->isValid()) {
+        if (($this->formObject->isSubmitted() && $this->formObject->isValid())) {
             $this->processSort();
-            $this->processFilter();
+            $this->processFilter($this->formData[self::GRID_FORM_FILTERABLE_KEY]);
+
+            if($this->saveFiltersInSession) {
+                $this->sessionStorage->set($this->getSessionStorageKey(), $this->formData[self::GRID_FORM_FILTERABLE_KEY]);
+            }
+        } elseif ($this->saveFiltersInSession && $this->sessionStorage->has($this->getSessionStorageKey())) {
+            $this->processFilter($this->sessionStorage->get($this->getSessionStorageKey()));
         }
     }
 
     /**
      * @return int
      */
-    private function doQueryForTotalRecords():int
+    private function doQueryForTotalRecords(): int
     {
         if ($this->config->getQueryBuilder() === null) {
             $qb = clone $this->qb;
             $qb->resetDQLPart('select');
             $qb->resetDQLPart('orderBy');
-            return (int)$qb->select('COUNT('.self::GRID_QUERY_ALIAS.')')->getQuery(
-            )->getSingleScalarResult();
+            return (int)$qb->select('COUNT(' . self::GRID_QUERY_ALIAS . ')')->getQuery()->getSingleScalarResult();
         } else {
             $qb = clone $this->config->getQueryBuilder();
             $qb->resetDQLPart('select');
             $qb->resetDQLPart('orderBy');
-            return (int)$qb->select('COUNT('.$this->config->getRootAlias().')')->getQuery(
-            )->getSingleScalarResult();
+            return (int)$qb->select('COUNT(' . $this->config->getRootAlias() . ')')->getQuery()->getSingleScalarResult(
+            );
         }
+    }
+
+    private function columnIsFiltered(GridColumn $column, array $data): bool
+    {
+        if (!$column->isFilterable()) {
+            return false;
+        }
+        if ($column->getFilterGroup() === null) {
+            return false;
+        }
+
+        return array_key_exists($column->getName(), $data);
+    }
+
+    private function getSessionStorageKey(): string
+    {
+        return '_m_grid_' . md5($this->config->getName());
     }
 }
