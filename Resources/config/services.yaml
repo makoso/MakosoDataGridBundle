@@ -8,3 +8,10 @@ services:
         exclude: './../../Grid/Column'
     Makoso\DatagridBundle\Grid\Grid:
         public: true
+        arguments:
+            $entityManager: '@doctrine.orm.default_entity_manager'
+            $request: '@request_stack'
+            $router: '@router.default'
+            $formFactory: '@form.factory'
+            $sessionStorage: '@session'
+            $saveFiltersInSession: '%makoso_datagrid.save_filters_in_session%'
