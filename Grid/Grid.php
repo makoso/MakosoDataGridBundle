@@ -276,7 +276,9 @@ class Grid
             if ($column->isFilterable() && $column->getFilterGroup() != null) {
                 $filterData = $this->formData[self::GRID_FORM_FILTERABLE_KEY][$column->getName()];
 
-                if ($filterData['filterType'] instanceof FilterInterface && (!empty($filterData['value']) || !empty($filterData['value2']))) {
+                $hasFirstValue = !empty($filterData['value']) || $filterData['value'] === 0;
+                $hasSecondValue = !empty($filterData['value2']) || $filterData['value2'] === 0;
+                if ($filterData['filterType'] instanceof FilterInterface && ($hasFirstValue || $hasSecondValue)) {
                     $column->setFilterableValue(
                         [
                             'value'  => $filterData['value'],
