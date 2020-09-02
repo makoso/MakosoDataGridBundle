@@ -35,22 +35,11 @@ class FilterableType extends AbstractType
                     ];
                 },
                 'required' => false,
-                'placeholder' => 'Enable filtering'
+                'placeholder' => 'Enable filtering',
+                'data' => $filterGroup->getFilters()->count() === 1 ? $filterGroup->getFilters()->first() : null,
             ])
-            ->add('value', TextType::class, [
-                'label' => false,
-                'attr' => [
-                    'class' => 'input-1'
-                ],
-                'required' => false
-            ])
-            ->add('value2', TextType::class, [
-                'label' => false,
-                'attr' => [
-                    'class' => 'input-1'
-                ],
-                'required' => false
-            ])
+            ->add('value', $filterGroup->getFirstInputType(), $filterGroup->getFirstInputOptions())
+            ->add('value2', $filterGroup->getSecondInputType(), $filterGroup->getSecondInputOptions())
         ;
     }
 

@@ -276,7 +276,9 @@ class Grid
             if ($column->isFilterable() && $column->getFilterGroup() != null) {
                 $filterData = $this->formData[self::GRID_FORM_FILTERABLE_KEY][$column->getName()];
 
-                if ($filterData['filterType'] instanceof FilterInterface) {
+                $hasFirstValue = !empty($filterData['value']) || $filterData['value'] === 0;
+                $hasSecondValue = !empty($filterData['value2']) || $filterData['value2'] === 0;
+                if ($filterData['filterType'] instanceof FilterInterface && ($hasFirstValue || $hasSecondValue)) {
                     $column->setFilterableValue(
                         [
                             'value'  => $filterData['value'],
@@ -402,10 +404,16 @@ class Grid
     private function doQueryForTotalRecords():int
     {
         if ($this->config->getQueryBuilder() === null) {
-            return (int)(clone $this->qb)->select('COUNT('.self::GRID_QUERY_ALIAS.')')->getQuery(
+            $qb = clone $this->qb;
+            $qb->resetDQLPart('select');
+            $qb->resetDQLPart('orderBy');
+            return (int)$qb->select('COUNT('.self::GRID_QUERY_ALIAS.')')->getQuery(
             )->getSingleScalarResult();
         } else {
-            return (int)(clone $this->qb)->select('COUNT('.$this->config->getRootAlias().')')->getQuery(
+            $qb = clone $this->config->getQueryBuilder();
+            $qb->resetDQLPart('select');
+            $qb->resetDQLPart('orderBy');
+            return (int)$qb->select('COUNT('.$this->config->getRootAlias().')')->getQuery(
             )->getSingleScalarResult();
         }
     }

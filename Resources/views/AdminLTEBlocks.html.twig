@@ -1,7 +1,7 @@
 {% block gridActionsBodyCeil %}
     <td>
         <div class="btn-group">
-            {% for actionColumn in grid.config.actionColumns %}
+            {% for actionColumn in grid.config.actionColumnsActive(record) %}
                 <a href="{{ grid.generateActionLink(actionColumn, record) }}" class="{{ actionColumn.cssClass }} grid-action-{{ actionColumn.name }}">{{ actionColumn.title|trans|raw }}</a>
             {% endfor %}
         </div>
@@ -61,10 +61,14 @@
         {% endif %}
         {% for column in grid.config.columns %}
             {% if column.filterable %}
-                <th style="vertical-align: top;" class="{% if column.filterable %}filterable{% endif %}" data-grid-column="{{ column.name }}">
-                    <div class="input-group">
+                {% set filterTypeClass = 'grid-filter-select' %}
+                {% if grid.form['filter'][column.name].filterType.vars.choices|length == 1 %}
+                    {% set filterTypeClass = filterTypeClass ~ ' not-clear' %}
+                {% endif %}
+                <th style="vertical-align: top;" class="filterable" data-grid-column="{{ column.name }}">
+                    <div class="input-group {% if grid.form['filter'][column.name].filterType.vars.choices|length == 1 %}hidden{% endif %}">
                         <span class="input-group-addon"><i class="fa fa-filter"></i></span>
-                        {{ form_row(grid.form['filter'][column.name].filterType, {attr: {class: 'grid-filter-select'}}) }}
+                        {{ form_row(grid.form['filter'][column.name].filterType, {attr: {class: filterTypeClass}}) }}
                     </div>
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fa fa-arrow-right"></i></span>

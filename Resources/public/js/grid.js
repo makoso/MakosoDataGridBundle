@@ -83,6 +83,9 @@ var Grid = {
             }
             $(this).closest(gridFormSelector).submit();
         });
+        body.on('change', gridFormSelector + ' select.grid-filter-input', function () {
+            $(this).closest(gridFormSelector).submit();
+        });
 
         if(typeof initChanges === "function"){
             initChanges(gridFormSelector);
@@ -186,7 +189,11 @@ var Grid = {
             });
 
             form.find('select').each(function(){
-                $(this).prop('selectedIndex', 0).val("");
+                if(!$(this).hasClass('not-clear')) {
+                    $(this).prop('selectedIndex', 0).val("");
+                } else {
+                    $(this).prop('selectedIndex', 1).val(0);
+                }
             });
 
             form.find('textarea').each(function(){
