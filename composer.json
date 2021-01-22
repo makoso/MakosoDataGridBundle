@@ -6,7 +6,7 @@
   "homepage": "https://github.com/makoso/",
   "license": "MIT",
   "require": {
-    "php": "^7.1.0",
+    "php": "^7.1.0 || ^8.0",
     "symfony/form": "^3.3||^4.0||^5.0",
     "symfony/framework-bundle": "^3.3||^4.0||^5.0",
     "symfony/orm-pack": "^1.0",
